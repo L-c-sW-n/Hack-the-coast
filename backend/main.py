@@ -114,7 +114,8 @@ def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
         "score": score,
         "grade": grade,
         "description": description,
-        "top_factors": top_3_factors
+        "top_factors": top_3_factors,
+        "brand": product.get("brands", "Unknown Brand")
     }
 
     # check for ecoscore data

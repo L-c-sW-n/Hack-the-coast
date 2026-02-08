@@ -85,6 +85,7 @@ function BarcodeScanner() {
         console.log("Grade:", data.grade);
         console.log("Top Factors:", data.top_factors);
         console.log("Advanced Data Available:", data.advanced_data_available);
+        console.log("Brand:", data.brand)
 
             setProductData(data);
 
