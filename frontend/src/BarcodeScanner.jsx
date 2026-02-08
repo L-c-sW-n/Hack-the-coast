@@ -68,9 +68,9 @@ function BarcodeScanner() {
     setError('');
 
     try {
-        const response = await fetch(
-            `http://localhost:8000/api/product/${code}`
-        );
+    const response = await fetch(
+        `https://greenscan-backend.onrender.com/api/product/${code}`
+    );
 
         if (!response.ok) {
             throw new Error('Product not found');
