@@ -30,7 +30,7 @@ def get_product(barcode):
                 detail = "Unable to connect to product database. Please try again later."
             )
         data = response.json()
-        if data.get("status") != 1:
+        if int(data.get("status", 0)) != 1:
             raise HTTPException(
                 status_code = 404,
                 detail = "Product not found"

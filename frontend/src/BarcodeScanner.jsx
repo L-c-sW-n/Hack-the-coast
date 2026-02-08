@@ -55,11 +55,15 @@ function BarcodeScanner() {
     setError('');
     setProductData(null);
     setBarcode('');
+
+    let hasDetected = false;
+
     setTimeout(async () => {
       const config = {
         containerId: 'scanner-container',
         onBarcodesDetected: (result) => {
-          if (result.barcodes?.[0]) {
+          if (!hasDetected && result.barcodes?.[0]) {
+            hasDetected = true;
             const code = result.barcodes[0].text;
             setBarcode(code);
             stopScanning();
@@ -103,10 +107,10 @@ function BarcodeScanner() {
         }
      catch (err) {
         setError(err.message || "Unable to connect. Please try again later.");
-        console.error("API Error:", err)
+        console.error("API Error:", err);
+        setTimeout(() => { setBarcode(''); setError(''); }, 2200);
     } finally {
       setLoading(false);
-      setTimeout(() => { setBarcode(''); setError(''); }, 2200);
     }
   };
 
