@@ -55,6 +55,7 @@ function BarcodeScanner() {
     setError('');
     setProductData(null);
     setBarcode('');
+    setOpacity(0);
 
     let hasDetected = false;
 
@@ -64,6 +65,12 @@ function BarcodeScanner() {
         onBarcodesDetected: (result) => {
           if (!hasDetected && result.barcodes?.[0]) {
             hasDetected = true;
+            
+            // Haptic Feedback: Short vibration on success
+            if (navigator.vibrate) {
+              navigator.vibrate(100);
+            }
+
             const code = result.barcodes[0].text;
             setBarcode(code);
             stopScanning();
@@ -84,31 +91,21 @@ function BarcodeScanner() {
   const fetchProductData = async (code) => {
     setLoading(true);
     try {
-    const response = await fetch(
+      const response = await fetch(
         `https://greenscan-backend.onrender.com/api/product/${code}`
-    );
+      );
 
-        if (!response.ok) {
-            throw new Error('Product not found');
-        }
+      if (!response.ok) {
+        throw new Error('Product not found');
+      }
 
-        const data = await response.json();
+      const data = await response.json();
+      setProductData(data);
+      setTimeout(() => setOpacity(1), 150);
 
-        console.log("Name:", data.name);
-        console.log("Score:", data.score);
-        console.log("Grade:", data.grade);
-        console.log("Top Factors:", data.top_factors);
-        console.log("Advanced Data Available:", data.advanced_data_available);
-        console.log("Brand:", data.brand)
-
-            setProductData(data);
-            setTimeout(() => setOpacity(1), 50)
-
-        }
-     catch (err) {
-        setError(err.message || "Unable to connect. Please try again later.");
-        console.error("API Error:", err);
-        setTimeout(() => { setBarcode(''); setError(''); }, 2200);
+    } catch (err) {
+      setError(err.message || "Unable to connect. Please try again later.");
+      setTimeout(() => { setBarcode(''); setError(''); }, 2200);
     } finally {
       setLoading(false);
     }
@@ -123,18 +120,39 @@ function BarcodeScanner() {
 
   const getFactorStyles = (text) => {
     const lowerText = text.toLowerCase();
-    let styles = { bg: '#f8f9f8', text: '#444', icon: '🌍' };
-    if (lowerText.includes('beef') || lowerText.includes('meat')) styles.icon = '🥩';
-    else if (lowerText.includes('palm oil')) styles.icon = '🌴';
-    else if (lowerText.includes('plastic') || lowerText.includes('packaging')) styles.icon = '🥤';
-    else if (lowerText.includes('local')) styles.icon = '🚜';
-    else if (lowerText.includes('organic')) styles.icon = '🍏';
-    else if (lowerText.includes('water')) styles.icon = '💧';
+    let styles = { bg: '#f8f9f8', text: '#444', icon: '📦' };
 
-    if (lowerText.includes('high') || lowerText.includes('ultra') || lowerText.includes('heavy')) {
+    // Hierarchy of factor matching
+    if (lowerText.includes('processed')) {
+      styles.icon = '👎'; 
       styles.bg = '#fff5f5';
       styles.text = '#c53030';
+    } 
+    else if (lowerText.includes('vegan') || lowerText.includes('plant-based')) {
+      styles.icon = '🌱';
+      styles.bg = '#f0fff4';
+      styles.text = '#2f855a';
     }
+    else if (lowerText.includes('organic')) styles.icon = '🍏';
+    else if (lowerText.includes('beef') || lowerText.includes('meat')) styles.icon = '🥩';
+    else if (lowerText.includes('palm oil')) styles.icon = '🌴';
+    else if (lowerText.includes('plastic') || lowerText.includes('packaging')) styles.icon = '♻️';
+    else if (lowerText.includes('local') || lowerText.includes('miles')) styles.icon = '📍';
+    else if (lowerText.includes('water')) styles.icon = '💧';
+    else if (lowerText.includes('carbon')) styles.icon = '☁️';
+    else if (lowerText.includes('sugar') || lowerText.includes('additive')) styles.icon = '🧪';
+
+    // Sentiment fallback coloring
+    if (styles.bg === '#f8f9f8') {
+        if (lowerText.includes('high') || lowerText.includes('heavy') || lowerText.includes('poor')) {
+            styles.bg = '#fff5f5';
+            styles.text = '#c53030';
+        } else if (lowerText.includes('low') || lowerText.includes('good') || lowerText.includes('sustainable')) {
+            styles.bg = '#f0fff4';
+            styles.text = '#2f855a';
+        }
+    }
+
     return styles;
   };
 
@@ -199,23 +217,27 @@ function BarcodeScanner() {
           </div>
         )}
 
-        {/* 3. RESULTS VIEW (Restored to fix white screen) */}
+        {/* 3. RESULTS VIEW */}
         {barcode && !scanning && !loading && !error && (
           <div style={{ 
             width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fff',
-            opacity: opacity, transition: 'opacity 0.4s ease-out'
+            opacity: opacity, 
+            transform: `translateY(${opacity === 1 ? '0px' : '30px'})`,
+            transition: 'opacity 0.8s ease-out, transform 0.6s ease-out'
           }}>
             <div style={{ padding: '60px 30px 10px', textAlign: 'center' }}>
               <h2 style={{ margin: 0, color: '#333', fontSize: '24px' }}>{productData?.name || 'Product'}</h2>
+              <p style={{ color: '#888', marginTop: '4px', fontSize: '14px' }}>{productData?.brand}</p>
             </div>
             
             <div style={{ flex: 1, padding: '0 30px', overflowY: 'auto' }}>
               <div style={{ 
                 width: '180px', height: '180px', borderRadius: '50%', margin: '30px auto', 
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-                border: `12px solid ${getScoreColor(productData?.score)}` 
+                border: `12px solid ${getScoreColor(productData?.score)}`,
+                boxShadow: `0 10px 25px ${getScoreColor(productData?.score)}33`
               }}>
-                <div style={{ fontSize: '56px', fontWeight: '900' }}>{productData?.score}</div>
+                <div style={{ fontSize: '56px', fontWeight: '900', color: '#333' }}>{productData?.score}</div>
                 <div style={{ fontWeight: 'bold', color: getScoreColor(productData?.score) }}>GRADE {productData?.grade}</div>
               </div>
 
@@ -224,19 +246,21 @@ function BarcodeScanner() {
                 const styles = getFactorStyles(text);
                 return (
                   <div key={i} style={{ 
-                    padding: '14px 18px', background: styles.bg, borderRadius: '16px', 
-                    marginBottom: '10px', display: 'flex', alignItems: 'center', color: styles.text 
+                    padding: '16px 18px', background: styles.bg, borderRadius: '18px', 
+                    marginBottom: '10px', display: 'flex', alignItems: 'center', color: styles.text,
+                    border: '1px solid rgba(0,0,0,0.02)'
                   }}>
-                    <span style={{ marginRight: '10px', fontSize: '20px' }}>{styles.icon}</span> {text}
+                    <span style={{ marginRight: '12px', fontSize: '22px' }}>{styles.icon}</span> 
+                    <span style={{ fontSize: '14px', fontWeight: '600' }}>{text}</span>
                   </div>
                 );
               })}
             </div>
 
             <div style={{ padding: '20px 30px 40px' }}>
-              <button onClick={() => { setBarcode(''); setProductData(null); }} style={{ 
+              <button onClick={() => { setBarcode(''); setProductData(null); setOpacity(0); }} style={{ 
                 width: '100%', padding: '20px', background: '#222', color: 'white', 
-                border: 'none', borderRadius: '20px', fontWeight: 'bold' 
+                border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer'
               }}>SCAN ANOTHER</button>
             </div>
           </div>
@@ -262,6 +286,7 @@ function BarcodeScanner() {
         <style>{`
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+          ::-webkit-scrollbar { width: 0px; background: transparent; }
         `}</style>
       </div>
     </div>
