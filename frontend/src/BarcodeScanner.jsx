@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import ScanbotSDK from 'scanbot-web-sdk';
 
+//hello
+
 const LICENSE_KEY =  "iWnayRfTw+/1KWIA/+Ldm3TxVNtDew" +
   "Y0uP/lxzokaowvgHEW4+d72oljWcrh" +
   "bN1eDrMLd53cefirqPp7avUd52eX9l" +
