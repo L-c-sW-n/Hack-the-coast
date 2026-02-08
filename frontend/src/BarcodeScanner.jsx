@@ -91,7 +91,8 @@ function BarcodeScanner() {
 
         }
      catch (err) {
-        console.error("API error:", err)
+        setError(err.message || "Unable to connect. Please try again later.");
+        console.error("API Error:", err)
     } finally {
         setLoading(false);
     }
