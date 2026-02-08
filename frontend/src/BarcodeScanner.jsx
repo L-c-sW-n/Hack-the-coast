@@ -308,19 +308,23 @@ function BarcodeScanner() {
                     <div style={{ marginTop: '10px', padding: '10px', background: '#fafafa', borderRadius: '12px', border: '1px solid #f0f0f0' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>🚜 Agriculture</span>
-                        <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.agriculture_kg?.toFixed(3) || 0} kg</span>
+                        {/* CHANGED TO BLACK */}
+                        <span style={{ fontWeight: 'bold', color: '#000' }}>{productData.carbon_footprint?.agriculture_kg?.toFixed(3) || 0} kg</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>📦 Packaging</span>
-                        <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.packaging_kg?.toFixed(3) || 0} kg</span>
+                         {/* CHANGED TO BLACK */}
+                        <span style={{ fontWeight: 'bold', color: '#000' }}>{productData.carbon_footprint?.packaging_kg?.toFixed(3) || 0} kg</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>🚛 Transportation</span>
-                        <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.transportation_kg?.toFixed(3) || 0} kg</span>
+                         {/* CHANGED TO BLACK */}
+                        <span style={{ fontWeight: 'bold', color: '#000' }}>{productData.carbon_footprint?.transportation_kg?.toFixed(3) || 0} kg</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
                         <span style={{ color: '#666' }}>🔍 Other Factors</span>
-                        <span style={{ fontWeight: 'bold' }}>
+                         {/* CHANGED TO BLACK */}
+                        <span style={{ fontWeight: 'bold', color: '#000' }}>
                           {Math.max(0, (
                             (productData.carbon_footprint?.total_kg_per_kg || 0) - 
                             ((productData.carbon_footprint?.agriculture_kg || 0) + 
