@@ -36,6 +36,7 @@ function BarcodeScanner() {
   const [productData, setProductData] = useState(null);
   const [currentTip, setCurrentTip] = useState(SUSTAINABLE_TIPS[0]);
   const [opacity, setOpacity] = useState(0);
+  const [view, setView] = useState('home'); // Controls page navigation
 
   useEffect(() => {
     ScanbotSDK.initialize({
@@ -56,21 +57,16 @@ function BarcodeScanner() {
     setProductData(null);
     setBarcode('');
     setOpacity(0);
+    setView('home');
 
     let hasDetected = false;
-
     setTimeout(async () => {
       const config = {
         containerId: 'scanner-container',
         onBarcodesDetected: (result) => {
           if (!hasDetected && result.barcodes?.[0]) {
             hasDetected = true;
-            
-            // Haptic Feedback: Short vibration on success
-            if (navigator.vibrate) {
-              navigator.vibrate(100);
-            }
-
+            if (navigator.vibrate) { navigator.vibrate(100); }
             const code = result.barcodes[0].text;
             setBarcode(code);
             stopScanning();
@@ -91,20 +87,14 @@ function BarcodeScanner() {
   const fetchProductData = async (code) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://greenscan-backend.onrender.com/api/product/${code}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Product not found');
-      }
-
+      const response = await fetch(`https://greenscan-backend.onrender.com/api/product/${code}`);
+      if (!response.ok) { throw new Error('Product not found'); }
       const data = await response.json();
       setProductData(data);
+      setView('results');
       setTimeout(() => setOpacity(1), 150);
-
     } catch (err) {
-      setError(err.message || "Unable to connect. Please try again later.");
+      setError(err.message || "Unable to connect.");
       setTimeout(() => { setBarcode(''); setError(''); }, 2200);
     } finally {
       setLoading(false);
@@ -121,18 +111,8 @@ function BarcodeScanner() {
   const getFactorStyles = (text) => {
     const lowerText = text.toLowerCase();
     let styles = { bg: '#f8f9f8', text: '#444', icon: '📦' };
-
-    // Hierarchy of factor matching
-    if (lowerText.includes('processed')) {
-      styles.icon = '👎'; 
-      styles.bg = '#fff5f5';
-      styles.text = '#c53030';
-    } 
-    else if (lowerText.includes('vegan') || lowerText.includes('plant-based')) {
-      styles.icon = '🌱';
-      styles.bg = '#f0fff4';
-      styles.text = '#2f855a';
-    }
+    if (lowerText.includes('processed')) { styles.icon = '👎'; styles.bg = '#fff5f5'; styles.text = '#c53030'; }
+    else if (lowerText.includes('vegan') || lowerText.includes('plant-based')) { styles.icon = '🌱'; styles.bg = '#f0fff4'; styles.text = '#2f855a'; }
     else if (lowerText.includes('organic')) styles.icon = '🍏';
     else if (lowerText.includes('beef') || lowerText.includes('meat')) styles.icon = '🥩';
     else if (lowerText.includes('palm oil')) styles.icon = '🌴';
@@ -141,62 +121,32 @@ function BarcodeScanner() {
     else if (lowerText.includes('water')) styles.icon = '💧';
     else if (lowerText.includes('carbon')) styles.icon = '☁️';
     else if (lowerText.includes('sugar') || lowerText.includes('additive')) styles.icon = '🧪';
-
-    // Sentiment fallback coloring
+    
     if (styles.bg === '#f8f9f8') {
         if (lowerText.includes('high') || lowerText.includes('heavy') || lowerText.includes('poor')) {
-            styles.bg = '#fff5f5';
-            styles.text = '#c53030';
+            styles.bg = '#fff5f5'; styles.text = '#c53030';
         } else if (lowerText.includes('low') || lowerText.includes('good') || lowerText.includes('sustainable')) {
-            styles.bg = '#f0fff4';
-            styles.text = '#2f855a';
+            styles.bg = '#f0fff4'; styles.text = '#2f855a';
         }
     }
-
     return styles;
   };
 
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'center', alignItems: 'center',
-      minHeight: '100vh', background: '#e0e0e0', padding: '20px'
-    }}>
-      <div style={{
-        width: '393px', height: '852px', position: 'relative',
-        overflow: 'hidden', borderRadius: '50px', background: '#fff', 
-        border: '12px solid #1a1a1a', boxSizing: 'border-box'
-      }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#e0e0e0', padding: '20px' }}>
+      <div style={{ width: '393px', height: '852px', position: 'relative', overflow: 'hidden', borderRadius: '50px', background: '#fff', border: '12px solid #1a1a1a', boxSizing: 'border-box' }}>
 
         {/* 1. HOME SCREEN */}
-        {!scanning && !barcode && !loading && !error && (
-          <div style={{
-            width: '100%', height: '100%',
-            background: 'linear-gradient(180deg, #6b9175 0%, #4a6d53 100%)',
-            display: 'flex', flexDirection: 'column', 
-            alignItems: 'center', justifyContent: 'center', 
-            gap: '50px', color: 'white', padding: '20px', boxSizing: 'border-box'
-          }}>
+        {view === 'home' && !scanning && !loading && !error && (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, #6b9175 0%, #4a6d53 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '50px', color: 'white', padding: '20px', boxSizing: 'border-box' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '80px', marginBottom: '10px' }}>🍃</div>
               <h1 style={{ fontWeight: '200', fontSize: '32px', letterSpacing: '4px', margin: 0 }}>ECOSCAN</h1>
             </div>
-            <div style={{
-              width: '310px', height: '280px', border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '35px', textAlign: 'center', background: 'rgba(255,255,255,0.08)', 
-              backdropFilter: 'blur(10px)', boxSizing: 'border-box'
-            }}>
-              <p style={{ fontSize: '18px', lineHeight: '1.6', margin: 0 }}>
-                Ready to check the environmental impact? <br/><br/>
-                <strong>Press the button and align barcode within frame.</strong>
-              </p>
+            <div style={{ width: '310px', height: '280px', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '35px', textAlign: 'center', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', boxSizing: 'border-box' }}>
+              <p style={{ fontSize: '18px', lineHeight: '1.6', margin: 0 }}>Ready to check the environmental impact? <br/><br/><strong>Press the button and align barcode within frame.</strong></p>
             </div>
-            <button onClick={startScanning} style={{
-              width: '110px', height: '110px', background: 'white', border: 'none', 
-              borderRadius: '50%', cursor: 'pointer', display: 'flex', 
-              alignItems: 'center', justifyContent: 'center', fontSize: '50px', 
-              boxShadow: '0 20px 40px rgba(0,0,0,0.3)', animation: 'pulse 2s infinite'
-            }}>
+            <button onClick={startScanning} style={{ width: '110px', height: '110px', background: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', animation: 'pulse 2s infinite' }}>
               <span style={{ transform: 'translateY(-2px)' }}>📷</span>
             </button>
           </div>
@@ -204,81 +154,97 @@ function BarcodeScanner() {
 
         {/* 2. LOADING STATE */}
         {loading && (
-          <div style={{ 
-            width: '100%', height: '100%', display: 'flex', flexDirection: 'column', 
-            alignItems: 'center', justifyContent: 'center', background: '#fff', gap: '30px'
-          }}>
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', gap: '30px' }}>
             <div style={{ fontSize: '60px', animation: 'spin 2s linear infinite' }}>🍃</div>
             <h2 style={{ color: '#333', margin: 0 }}>Analyzing...</h2>
             <div style={{ width: '80%', padding: '30px', background: '#f9f9f9', borderRadius: '30px', textAlign: 'center' }}>
-                <p style={{ fontSize: '12px', color: '#4a6d53', fontWeight: 'bold', marginBottom: '10px' }}>ECO TIP</p>
-                <p style={{ margin: 0 }}>"{currentTip}"</p>
+              <p style={{ fontSize: '12px', color: '#4a6d53', fontWeight: 'bold', marginBottom: '10px' }}>ECO TIP</p>
+              <p style={{ margin: 0 }}>"{currentTip}"</p>
             </div>
           </div>
         )}
 
-        {/* 3. RESULTS VIEW */}
-        {barcode && !scanning && !loading && !error && (
-          <div style={{ 
-            width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fff',
-            opacity: opacity, 
-            transform: `translateY(${opacity === 1 ? '0px' : '30px'})`,
-            transition: 'opacity 0.8s ease-out, transform 0.6s ease-out'
-          }}>
+        {/* 3. MAIN RESULTS VIEW */}
+        {view === 'results' && productData && (
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fff', opacity: opacity, transform: `translateY(${opacity === 1 ? '0px' : '30px'})`, transition: 'opacity 0.8s ease-out, transform 0.6s ease-out' }}>
             <div style={{ padding: '60px 30px 10px', textAlign: 'center' }}>
-              <h2 style={{ margin: 0, color: '#333', fontSize: '24px' }}>{productData?.name || 'Product'}</h2>
-              <p style={{ color: '#888', marginTop: '4px', fontSize: '14px' }}>{productData?.brand}</p>
+              <h2 style={{ margin: 0, color: '#333', fontSize: '24px' }}>{productData.name}</h2>
+              <p style={{ color: '#888', marginTop: '4px', fontSize: '14px' }}>{productData.brand}</p>
             </div>
             
             <div style={{ flex: 1, padding: '0 30px', overflowY: 'auto' }}>
-              <div style={{ 
-                width: '180px', height: '180px', borderRadius: '50%', margin: '30px auto', 
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-                border: `12px solid ${getScoreColor(productData?.score)}`,
-                boxShadow: `0 10px 25px ${getScoreColor(productData?.score)}33`
-              }}>
-                <div style={{ fontSize: '56px', fontWeight: '900', color: '#333' }}>{productData?.score}</div>
-                <div style={{ fontWeight: 'bold', color: getScoreColor(productData?.score) }}>GRADE {productData?.grade}</div>
+              <div style={{ width: '180px', height: '180px', borderRadius: '50%', margin: '30px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `12px solid ${getScoreColor(productData.score)}`, boxShadow: `0 10px 25px ${getScoreColor(productData.score)}33` }}>
+                <div style={{ fontSize: '56px', fontWeight: '900', color: '#333' }}>{productData.score}</div>
+                <div style={{ fontWeight: 'bold', color: getScoreColor(productData.score) }}>GRADE {productData.grade}</div>
               </div>
 
-              {productData?.top_factors?.map((item, i) => {
+              {productData.top_factors?.map((item, i) => {
                 const text = typeof item === 'object' ? item.factor : item;
-                const styles = getFactorStyles(text);
+                const s = getFactorStyles(text);
                 return (
-                  <div key={i} style={{ 
-                    padding: '16px 18px', background: styles.bg, borderRadius: '18px', 
-                    marginBottom: '10px', display: 'flex', alignItems: 'center', color: styles.text,
-                    border: '1px solid rgba(0,0,0,0.02)'
-                  }}>
-                    <span style={{ marginRight: '12px', fontSize: '22px' }}>{styles.icon}</span> 
+                  <div key={i} style={{ padding: '16px 18px', background: s.bg, borderRadius: '18px', marginBottom: '10px', display: 'flex', alignItems: 'center', color: s.text, border: '1px solid rgba(0,0,0,0.02)' }}>
+                    <span style={{ marginRight: '12px', fontSize: '22px' }}>{s.icon}</span> 
                     <span style={{ fontSize: '14px', fontWeight: '600' }}>{text}</span>
                   </div>
                 );
               })}
+
+              {productData.advanced_data_available && (
+                <button 
+                  onClick={() => setView('metrics')}
+                  style={{ width: '100%', padding: '15px', background: '#f0f7f2', color: '#4a6d53', border: '2px dashed #4a6d53', borderRadius: '18px', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                >
+                  📊 View Detailed Metrics
+                </button>
+              )}
             </div>
 
             <div style={{ padding: '20px 30px 40px' }}>
-              <button onClick={() => { setBarcode(''); setProductData(null); setOpacity(0); }} style={{ 
-                width: '100%', padding: '20px', background: '#222', color: 'white', 
-                border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer'
-              }}>SCAN ANOTHER</button>
+              <button onClick={() => { setView('home'); setBarcode(''); setProductData(null); setOpacity(0); }} style={{ width: '100%', padding: '20px', background: '#222', color: 'white', border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>SCAN ANOTHER</button>
             </div>
           </div>
         )}
 
-        {/* 4. SCANNING VIEW */}
-        {scanning && (
-          <div id="scanner-container" style={{ width: '100%', height: '100%', background: '#000' }} />
+        {/* 4. DETAILED METRICS VIEW */}
+        {view === 'metrics' && productData && (
+          <div style={{ width: '100%', height: '100%', background: '#fdfdfd', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '60px 25px 20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <button onClick={() => setView('results')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>←</button>
+              <h2 style={{ margin: 0, fontSize: '20px', color: '#333' }}>Environmental Impact</h2>
+            </div>
+
+            <div style={{ flex: 1, padding: '0 25px', overflowY: 'auto' }}>
+              <div style={{ background: '#fff', padding: '20px', borderRadius: '25px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid #eee' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                  <span style={{ fontSize: '24px' }}>☁️</span>
+                  <span style={{ fontWeight: 'bold', color: '#555' }}>Carbon Footprint</span>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: '#333' }}>{productData.carbon_kg} <span style={{ fontSize: '16px', fontWeight: '400' }}>kg CO2e</span></div>
+                <div style={{ marginTop: '15px', padding: '12px', background: '#f5f7ff', borderRadius: '12px', fontSize: '14px', color: '#4a5568' }}>
+                  🚗 Equivalent to driving a car for <strong>{(productData.carbon_kg / 0.4).toFixed(1)} miles</strong>.
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', padding: '20px', borderRadius: '25px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                  <span style={{ fontSize: '24px' }}>💧</span>
+                  <span style={{ fontWeight: 'bold', color: '#555' }}>Water Usage</span>
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: '#333' }}>{productData.water_liters} <span style={{ fontSize: '16px', fontWeight: '400' }}>Liters</span></div>
+                <div style={{ marginTop: '15px', padding: '12px', background: '#edfaff', borderRadius: '12px', fontSize: '14px', color: '#2c5282' }}>
+                  🚿 Equivalent to <strong>{(productData.water_liters / 60).toFixed(1)} long showers</strong> (8 mins each).
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* 5. ERROR STATE */}
+        {scanning && <div id="scanner-container" style={{ width: '100%', height: '100%', background: '#000' }} />}
+
         {error && (
-          <div style={{ 
-            width: '100%', height: '100%', display: 'flex', flexDirection: 'column', 
-            alignItems: 'center', justifyContent: 'center', background: '#fff' 
-          }}>
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
             <div style={{ fontSize: '70px', marginBottom: '20px' }}>🔎</div>
-            <h2 style={{ color: '#333', fontWeight: '700' }}>{error}</h2>
+            <h2 style={{ color: '#333' }}>{error}</h2>
             <p style={{ color: '#999' }}>Returning to Home...</p>
           </div>
         )}
