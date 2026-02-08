@@ -106,7 +106,6 @@ function BarcodeScanner() {
         console.error("API Error:", err)
     } finally {
       setLoading(false);
-      setError("Unknown Item");
       setTimeout(() => { setBarcode(''); setError(''); }, 2200);
     }
   };
