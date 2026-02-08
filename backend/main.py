@@ -15,13 +15,38 @@ app.add_middleware(
 
 
 def get_product(barcode):
-    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    response = requests.get(url)
-    data = response.json()
-    if data.get("status") != 1:
-        raise HTTPException(f"Product not found")
-    product = data["product"]
-    return product
+
+    if not barcode or len(barcode) <8 or not barcode.isdigit():
+        raise HTTPException(
+            status_code = 400,
+            detail = "Invalid barcode. Please scan a valid product barcode."
+        )
+    try:
+        url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code = 503,
+                detail = "Unable to connect to product database. Please try again later."
+            )
+        data = response.json()
+        if data.get("status") != 1:
+            raise HTTPException(
+                status_code = 404,
+                detail = "Product not found"
+                )
+        product = data["product"]
+        return product
+    except requests.Timeout:
+        raise HTTPException(
+            status_code = 504,
+            detail = "Request timed out. Please try again later."
+        )
+    except requests.RequestException as e:
+        raise HTTPException(
+            status_code = 503,
+            detail = "Network error. Please check your connection and try again."
+        )
 
 def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
 
@@ -33,14 +58,14 @@ def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
     categories_str = ' '.join (categories_tags).lower()
 
     if any(word in categories_str for word in ["beef", "veal", "lamb", "red-meat"]):
-        score += 30
-        factors.append({"factor": "Red Meat", "impact": "+30"})
+        score += 35
+        factors.append({"factor": "Red Meat", "impact": "+35"})
     elif any(word in categories_str for word in ["poultry", "chicken", "turkey", "pork"]):
-        score += 20
-        factors.append({"factor": "Meat", "impact": "+20"})
+        score += 25
+        factors.append({"factor": "Meat", "impact": "+25"})
     elif any(word in categories_str for word in ["fish", "seafood"]):
-        score += 12
-        factors.append({"factor": "Fish", "impact": "+12"})
+        score += 15
+        factors.append({"factor": "Fish", "impact": "+15"})
     elif any(word in categories_str for word in ["dairy", "cheese", "milk"]):
         score += 10
         factors.append({"factor": "Dairy", "impact": "+10"})
@@ -59,11 +84,11 @@ def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
     # processing level (nova grade)
     nova_group = product.get("nova_group")
     if nova_group == 4:
-        score += 15
-        factors.append({"factor": "Ultra-processed", "impact": "+15"})
+        score += 20
+        factors.append({"factor": "Ultra-processed", "impact": "+20"})
     elif nova_group == 3:
-        score += 8
-        factors.append({"factor": "Processed", "impact": "+8"})
+        score += 10
+        factors.append({"factor": "Processed", "impact": "+10"})
     elif nova_group == 2:
         score += 0
         factors.append({"factor": "Slightly Processed", "impact": "+0"})
