@@ -142,49 +142,98 @@ function BarcodeScanner() {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100dvh', background: '#fff', overflow: 'hidden', position: 'fixed', top: 0, left: 0 }}>
+    <div style={{ 
+      width: '100vw', 
+      height: '100dvh', 
+      background: '#fff', 
+      overflow: 'hidden', 
+      position: 'fixed', 
+      top: 0, 
+      left: 0,
+      // Added padding for notched phones
+      paddingTop: 'env(safe-area-inset-top)',
+      paddingBottom: 'env(safe-area-inset-bottom)',
+      boxSizing: 'border-box'
+    }}>
       <div style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
 
         {/* 1. HOME SCREEN */}
         {view === 'home' && !scanning && !loading && !error && (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, #6b9175 0%, #4a6d53 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '50px', color: 'white', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(180deg, #6b9175 0%, #4a6d53 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '30px', color: 'white', padding: '20px', boxSizing: 'border-box' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '80px', marginBottom: '10px' }}>🍃</div>
-              <h1 style={{ fontWeight: '200', fontSize: '32px', letterSpacing: '4px', margin: 0 }}>ECOSCAN</h1>
+              <div style={{ fontSize: 'clamp(50px, 10vh, 80px)', marginBottom: '10px' }}>🍃</div>
+              <h1 style={{ fontWeight: '200', fontSize: 'clamp(24px, 5vw, 32px)', letterSpacing: '4px', margin: 0 }}>ECOSCAN</h1>
             </div>
-            <div style={{ width: '100%', maxWidth: '350px', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '35px', textAlign: 'center', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', boxSizing: 'border-box' }}>
-              <p style={{ fontSize: '18px', lineHeight: '1.6', margin: 0 }}>Ready to check the environmental impact? <br/><br/><strong>Press the button and align barcode within frame.</strong></p>
+            <div style={{ width: '100%', maxWidth: '350px', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '25px', textAlign: 'center', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)', boxSizing: 'border-box' }}>
+              <p style={{ fontSize: '16px', lineHeight: '1.6', margin: 0 }}>Ready to check the environmental impact? <br/><br/><strong>Press the button and align barcode within frame.</strong></p>
             </div>
-            <button onClick={startScanning} style={{ width: '110px', height: '110px', background: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', animation: 'pulse 2s infinite' }}>
+            <button onClick={startScanning} style={{ width: '100px', height: '100px', background: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', animation: 'pulse 2s infinite' }}>
               <span style={{ transform: 'translateY(-2px)' }}>📷</span>
             </button>
           </div>
         )}
 
-        {/* 2. LOADING STATE */}
-        {loading && (
-          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', gap: '30px' }}>
-            <div style={{ fontSize: '60px', animation: 'spin 2s linear infinite' }}>🍃</div>
-            <h2 style={{ color: '#333', margin: 0 }}>Analyzing...</h2>
-            <div style={{ width: '80%', maxWidth: '400px', padding: '30px', background: '#f9f9f9', borderRadius: '30px', textAlign: 'center' }}>
-              <p style={{ fontSize: '12px', color: '#4a6d53', fontWeight: 'bold', marginBottom: '10px' }}>ECO TIP</p>
-              <p style={{ margin: 0 }}>"{currentTip}"</p>
-            </div>
-          </div>
-        )}
+       {/* 2. LOADING STATE */}
+{loading && (
+  <div style={{ 
+    width: '100%', 
+    height: '100%', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    background: '#fff', 
+    gap: '30px', 
+    padding: '20px', 
+    boxSizing: 'border-box' 
+  }}>
+    <div style={{ fontSize: '60px', animation: 'spin 2s linear infinite' }}>🍃</div>
+    <h2 style={{ color: '#333', margin: 0, fontWeight: '600' }}>Analyzing...</h2>
+    
+    <div style={{ 
+      width: '100%', 
+      maxWidth: '400px', 
+      padding: '30px', 
+      background: '#f9f9f9', 
+      borderRadius: '30px', 
+      textAlign: 'center', 
+      boxSizing: 'border-box',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+    }}>
+      <p style={{ 
+        fontSize: '12px', 
+        color: '#4a6d53', 
+        fontWeight: 'bold', 
+        marginBottom: '10px', 
+        letterSpacing: '1px' 
+      }}>ECO TIP</p>
+      
+      {/* THE FUN FOOD FACT / ECO TIP IN BLACK */}
+      <p style={{ 
+        margin: 0, 
+        color: '#000',           // Explicitly set to Black
+        fontSize: '18px', 
+        lineHeight: '1.5',
+        fontWeight: '500'
+      }}>
+        "{currentTip}"
+      </p>
+    </div>
+  </div>
+)}
 
         {/* 3. MAIN RESULTS VIEW */}
         {view === 'results' && productData && (
           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fff', opacity: opacity, transform: `translateY(${opacity === 1 ? '0px' : '30px'})`, transition: 'opacity 0.8s ease-out, transform 0.6s ease-out' }}>
-            <div style={{ padding: '60px 30px 10px', textAlign: 'center' }}>
-              <h2 style={{ margin: 0, color: '#333', fontSize: '24px' }}>{productData.name}</h2>
+            <div style={{ padding: '20px 30px 10px', textAlign: 'center' }}>
+              <h2 style={{ margin: 0, color: '#333', fontSize: '22px' }}>{productData.name}</h2>
               <p style={{ color: '#888', marginTop: '4px', fontSize: '14px' }}>{productData.brand}</p>
             </div>
             
             <div style={{ flex: 1, padding: '0 30px', overflowY: 'auto' }}>
-              <div style={{ width: '180px', height: '180px', borderRadius: '50%', margin: '30px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `12px solid ${getScoreColor(productData.score)}`, boxShadow: `0 10px 25px ${getScoreColor(productData.score)}33` }}>
-                <div style={{ fontSize: '56px', fontWeight: '900', color: '#333' }}>{productData.score}</div>
-                <div style={{ fontWeight: 'bold', color: getScoreColor(productData.score) }}>GRADE {productData.grade}</div>
+              <div style={{ width: '160px', height: '160px', borderRadius: '50%', margin: '20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: `10px solid ${getScoreColor(productData.score)}`, boxShadow: `0 10px 25px ${getScoreColor(productData.score)}33` }}>
+                <div style={{ fontSize: '48px', fontWeight: '900', color: '#333' }}>{productData.score}</div>
+                <div style={{ fontWeight: 'bold', fontSize: '14px', color: getScoreColor(productData.score) }}>GRADE {productData.grade}</div>
               </div>
 
               <div style={{ maxWidth: '500px', margin: '0 auto' }}>
@@ -192,9 +241,9 @@ function BarcodeScanner() {
                   const text = typeof item === 'object' ? item.factor : item;
                   const s = getFactorStyles(text);
                   return (
-                    <div key={i} style={{ padding: '16px 18px', background: s.bg, borderRadius: '18px', marginBottom: '10px', display: 'flex', alignItems: 'center', color: s.text, border: '1px solid rgba(0,0,0,0.02)' }}>
-                      <span style={{ marginRight: '12px', fontSize: '22px' }}>{s.icon}</span> 
-                      <span style={{ fontSize: '14px', fontWeight: '600' }}>{text}</span>
+                    <div key={i} style={{ padding: '14px 18px', background: s.bg, borderRadius: '18px', marginBottom: '10px', display: 'flex', alignItems: 'center', color: s.text, border: '1px solid rgba(0,0,0,0.02)' }}>
+                      <span style={{ marginRight: '12px', fontSize: '20px' }}>{s.icon}</span> 
+                      <span style={{ fontSize: '13px', fontWeight: '600' }}>{text}</span>
                     </div>
                   );
                 })}
@@ -202,7 +251,7 @@ function BarcodeScanner() {
                 {productData.advanced_data_available && (
                   <button 
                     onClick={() => setView('metrics')}
-                    style={{ width: '100%', padding: '15px', background: '#f0f7f2', color: '#4a6d53', border: '2px dashed #4a6d53', borderRadius: '18px', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '15px', background: '#f0f7f2', color: '#4a6d53', border: '2px dashed #4a6d53', borderRadius: '18px', fontWeight: 'bold', marginTop: '5px', cursor: 'pointer' }}
                   >
                     📊 View Detailed Metrics
                   </button>
@@ -210,8 +259,8 @@ function BarcodeScanner() {
               </div>
             </div>
 
-            <div style={{ padding: '20px 30px 40px', width: '100%', maxWidth: '500px', margin: '0 auto', boxSizing: 'border-box' }}>
-              <button onClick={resetScanner} style={{ width: '100%', padding: '20px', background: '#222', color: 'white', border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>SCAN ANOTHER</button>
+            <div style={{ padding: '20px 30px', width: '100%', maxWidth: '500px', margin: '0 auto', boxSizing: 'border-box' }}>
+              <button onClick={resetScanner} style={{ width: '100%', padding: '18px', background: '#222', color: 'white', border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>SCAN ANOTHER</button>
             </div>
           </div>
         )}
@@ -219,9 +268,9 @@ function BarcodeScanner() {
         {/* 4. DETAILED METRICS VIEW */}
         {view === 'metrics' && productData && (
           <div style={{ width: '100%', height: '100%', background: '#fdfdfd', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '60px 25px 20px', display: 'flex', alignItems: 'center', gap: '15px', maxWidth: '500px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ padding: '20px 25px 15px', display: 'flex', alignItems: 'center', gap: '15px', maxWidth: '500px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
               <button onClick={() => { setView('results'); setShowBreakdown(false); }} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>←</button>
-              <h2 style={{ margin: 0, fontSize: '20px', color: '#333' }}>Environmental Impact</h2>
+              <h2 style={{ margin: 0, fontSize: '18px', color: '#333' }}>Environmental Impact</h2>
             </div>
 
             <div style={{ flex: 1, padding: '0 25px', overflowY: 'auto' }}>
@@ -232,11 +281,11 @@ function BarcodeScanner() {
                     <span style={{ fontWeight: 'bold', color: '#555' }}>Carbon Footprint</span>
                   </div>
                   
-                  <div style={{ fontSize: '32px', fontWeight: '800', color: '#333' }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: '#333' }}>
                     {productData.carbon_footprint?.total_kg_per_kg?.toFixed(2) || 0} <span style={{ fontSize: '16px', fontWeight: '400' }}>kg CO2e</span>
                   </div>
 
-                  <div style={{ marginTop: '15px', padding: '12px', background: '#f5f7ff', borderRadius: '12px', fontSize: '14px', color: '#4a5568' }}>
+                  <div style={{ marginTop: '15px', padding: '12px', background: '#f5f7ff', borderRadius: '12px', fontSize: '13px', color: '#4a5568' }}>
                     🚗 Equivalent to driving a car for <strong>{((productData.carbon_footprint?.total_kg_per_kg || 0) / 0.4).toFixed(1)} miles</strong>.
                   </div>
 
@@ -249,19 +298,19 @@ function BarcodeScanner() {
 
                   {showBreakdown && (
                     <div style={{ marginTop: '10px', padding: '10px', background: '#fafafa', borderRadius: '12px', border: '1px solid #f0f0f0' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>🚜 Agriculture</span>
                         <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.agriculture_kg?.toFixed(3) || 0} kg</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>📦 Packaging</span>
                         <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.packaging_kg?.toFixed(3) || 0} kg</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
                         <span style={{ color: '#666' }}>🚛 Transportation</span>
                         <span style={{ fontWeight: 'bold' }}>{productData.carbon_footprint?.transportation_kg?.toFixed(3) || 0} kg</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
                         <span style={{ color: '#666' }}>🔍 Other Factors</span>
                         <span style={{ fontWeight: 'bold' }}>
                           {Math.max(0, (
@@ -278,8 +327,8 @@ function BarcodeScanner() {
               </div>
             </div>
 
-            <div style={{ padding: '20px 30px 40px', width: '100%', maxWidth: '500px', margin: '0 auto', boxSizing: 'border-box' }}>
-              <button onClick={resetScanner} style={{ width: '100%', padding: '20px', background: '#222', color: 'white', border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>SCAN ANOTHER</button>
+            <div style={{ padding: '20px 30px', width: '100%', maxWidth: '500px', margin: '0 auto', boxSizing: 'border-box' }}>
+              <button onClick={resetScanner} style={{ width: '100%', padding: '18px', background: '#222', color: 'white', border: 'none', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>SCAN ANOTHER</button>
             </div>
           </div>
         )}
@@ -287,16 +336,16 @@ function BarcodeScanner() {
         {scanning && <div id="scanner-container" style={{ width: '100%', height: '100%', background: '#000', position: 'absolute', top: 0, left: 0 }} />}
 
         {error && (
-          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
-            <div style={{ fontSize: '70px', marginBottom: '20px' }}>🔎</div>
-            <h2 style={{ color: '#333' }}>{error}</h2>
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', padding: '20px' }}>
+            <div style={{ fontSize: '60px', marginBottom: '20px' }}>🔎</div>
+            <h2 style={{ color: '#333', textAlign: 'center' }}>{error}</h2>
             <p style={{ color: '#999' }}>Returning to Home...</p>
           </div>
         )}
         
         <style>{`
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+          @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
           ::-webkit-scrollbar { width: 0px; background: transparent; }
         `}</style>
       </div>
