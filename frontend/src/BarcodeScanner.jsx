@@ -1,21 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ScanbotSDK from 'scanbot-web-sdk';
 
-const LICENSE_KEY =  "iWnayRfTw+/1KWIA/+Ldm3TxVNtDew" +
-  "Y0uP/lxzokaowvgHEW4+d72oljWcrh" +
-  "bN1eDrMLd53cefirqPp7avUd52eX9l" +
-  "MHuF7zPrFrtZbTU3jewjyNEpp8OA/X" +
-  "ozHrqiRxAKj7zPR3DI3C0UrMEHDFQI" +
-  "hj92izZ46/GGJVlAbSRtD8u6dWmbMV" +
-  "tM9Q1VXZZRAg5bA8BS1pZZ8Khgd6Hh" +
-  "5o+T+VY+0K33Rk4JGYsz9dcV93JMqC" +
-  "uR+DjckCI6+hbQm7Ukj70OSCS350Yg" +
-  "NWVq0ajKDmqmKksfBdPBO73o6qxdhQ" +
-  "0RKxtnyT0PDk7qw6Mvtwy9EBHfAOfb" +
-  "4/LvIGOJF0qw==\nU2NhbmJvdFNESw" +
-  "psb2NhbGhvc3R8Z3JlZW4tc2Nhbm5l" +
-  "ci1tdS52ZXJjZWwuYXBwCjE3NzExMT" +
-  "M1OTkKODM4ODYwNwo4\n";
+const LICENSE_KEY =  import.meta.env.VITE_SCANBOT_LICENSE_KEY
 
 function BarcodeScanner() {
   const [sdk, setSdk] = useState(null);
