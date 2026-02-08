@@ -68,6 +68,7 @@ function BarcodeScanner() {
         console.log("Brand:", data.brand)
 
             setProductData(data);
+            setTimeout(() => setOpacity(1), 50)
 
         }
      catch (err) {
