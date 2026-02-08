@@ -80,15 +80,31 @@ function BarcodeScanner() {
   const fetchProductData = async (code) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/product/${code}`);
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      setTimeout(() => {
-        setProductData(data);
-        setLoading(false);
-        setTimeout(() => setOpacity(1), 50);
-      }, 1500);
-    } catch {
+    const response = await fetch(
+        `https://greenscan-backend.onrender.com/api/product/${code}`
+    );
+
+        if (!response.ok) {
+            throw new Error('Product not found');
+        }
+
+        const data = await response.json();
+
+        console.log("Name:", data.name);
+        console.log("Score:", data.score);
+        console.log("Grade:", data.grade);
+        console.log("Top Factors:", data.top_factors);
+        console.log("Advanced Data Available:", data.advanced_data_available);
+        console.log("Brand:", data.brand)
+
+            setProductData(data);
+            setTimeout(() => setOpacity(1), 50)
+
+        }
+     catch (err) {
+        setError(err.message || "Unable to connect. Please try again later.");
+        console.error("API Error:", err)
+    } finally {
       setLoading(false);
       setError("Unknown Item");
       setTimeout(() => { setBarcode(''); setError(''); }, 2200);
