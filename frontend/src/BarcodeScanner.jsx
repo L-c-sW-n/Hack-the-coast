@@ -22,6 +22,9 @@ function BarcodeScanner() {
   const [barcode, setBarcode] = useState('');
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [productData, setProductData] = useState(null);
 
   useEffect(() => {
     ScanbotSDK.initialize({ licenseKey: LICENSE_KEY,
@@ -60,22 +63,34 @@ function BarcodeScanner() {
   };
 
   const fetchProductData = async (code) => {
+
+    setLoading(true);
+    setError('');
+
     try {
         const response = await fetch(
-            `https://world.openfoodfacts.org/api/v2/product/${code}.json`
+            `http://localhost:8000/api/product/${code}`
         );
+
+        if (!response.ok) {
+            throw new Error('Product not found');
+        }
+
         const data = await response.json();
 
-        if (data.status === 1) {
-            const product = data.product;
-            console.log("Product Found:", product);
-            console.log("Eco-score:", product.ecoscore_grade);
-            console.log("Product Name:", product.product_name);
-        } else {
-            console.log("Product not found for barcode:", code);
+        console.log("Name:", data.name);
+        console.log("Score:", data.score);
+        console.log("Grade:", data.grade);
+        console.log("Top Factors:", data.top_factors);
+        console.log("Advanced Data Available:", data.advanced_data_available);
+
+            setProductData(data);
+
         }
-    } catch (err) {
+     catch (err) {
         console.error("API error:", err)
+    } finally {
+        setLoading(false);
     }
   }
 

@@ -1,5 +1,18 @@
 import requests
 from typing import Optional, Dict, Any
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
+
 
 def get_product(barcode):
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
@@ -129,10 +142,21 @@ def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
         response["message"] = "Advanced information is not available for this product"
     
     return response
+    pass
 
+@app.get("/api/product/{barcode}")
+async def get_product_endpoint(barcode: str):
+    try:
+        product = get_product(barcode)
+        score_data = get_score(product)
+        
+        return score_data
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
 
 
 if __name__ == "__main__":
-    product = get_product("3017620422003")  # Nutella
-    result = get_score(product)
-    print(result)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
