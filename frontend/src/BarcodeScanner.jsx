@@ -91,6 +91,14 @@ function BarcodeScanner() {
       if (!response.ok) { throw new Error('Product not found'); }
       const data = await response.json();
       setProductData(data);
+
+        console.log("Name:", data.name);
+        console.log("Score:", data.score);
+        console.log("Grade:", data.grade);
+        console.log("Top Factors:", data.top_factors);
+        console.log("Advanced Data Available:", data.advanced_data_available);
+        console.log("Brand:", data.brand)
+
       setView('results');
       setTimeout(() => setOpacity(1), 150);
     } catch (err) {
