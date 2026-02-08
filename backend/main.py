@@ -114,7 +114,8 @@ def get_score(product: Dict[str, Any]) -> Dict[str, Any]:
         "score": score,
         "grade": grade,
         "description": description,
-        "top_factors": top_3_factors
+        "top_factors": top_3_factors,
+        "brand": product.get("brands", "Unknown Brand")
     }
 
     # check for ecoscore data
@@ -155,7 +156,6 @@ async def get_product_endpoint(barcode: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
-
 
 if __name__ == "__main__":
     import uvicorn

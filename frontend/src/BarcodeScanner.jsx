@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ScanbotSDK from 'scanbot-web-sdk';
 
-const LICENSE_KEY = "iWnayRfTw+/1KWIA/+Ldm3TxVNtDew" +
+const LICENSE_KEY =  "iWnayRfTw+/1KWIA/+Ldm3TxVNtDew" +
   "Y0uP/lxzokaowvgHEW4+d72oljWcrh" +
   "bN1eDrMLd53cefirqPp7avUd52eX9l" +
   "MHuF7zPrFrtZbTU3jewjyNEpp8OA/X" +
@@ -64,13 +64,28 @@ function BarcodeScanner() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:8000/api/product/${code}`);
-      if (!response.ok) throw new Error('Product not found');
-      const data = await response.json();
-      setProductData(data);
-    } catch (err) {
-      console.error("API error:", err);
-      setError("Product not found in our database.");
+    const response = await fetch(
+        `https://greenscan-backend.onrender.com/api/product/${code}`
+    );
+
+        if (!response.ok) {
+            throw new Error('Product not found');
+        }
+
+        const data = await response.json();
+
+        console.log("Name:", data.name);
+        console.log("Score:", data.score);
+        console.log("Grade:", data.grade);
+        console.log("Top Factors:", data.top_factors);
+        console.log("Advanced Data Available:", data.advanced_data_available);
+        console.log("Brand:", data.brand)
+
+            setProductData(data);
+
+        }
+     catch (err) {
+        console.error("API error:", err)
     } finally {
       setLoading(false);
     }
